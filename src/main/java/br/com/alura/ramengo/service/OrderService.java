@@ -2,6 +2,7 @@ package br.com.alura.ramengo.service;
 
 import br.com.alura.ramengo.dto.OrderDTO;
 import br.com.alura.ramengo.dto.OrderResponseDTO;
+import br.com.alura.ramengo.dto.ProteinDTO;
 import br.com.alura.ramengo.model.Broth;
 import br.com.alura.ramengo.model.Order;
 import br.com.alura.ramengo.model.Protein;
@@ -20,21 +21,25 @@ public class OrderService {
     private ProteinRepository proteinRepository;
     @Autowired
     private OrderRepository repository;
+    Long id;
 
+    public Long getId() {
+        return id;
+    }
 
     public OrderResponseDTO createOrder(OrderDTO dto) {
-        Broth broth = brothRepository.findById(dto.getBrothId())
-                .orElseThrow(() -> new RuntimeException("Broth not found"));
+        Broth broth = brothRepository.getReferenceById(dto.brothId());
 
-        Protein protein = proteinRepository.findById(dto.getProteinId())
-                .orElseThrow(() -> new RuntimeException("Protein not found"));
+        Protein protein = proteinRepository.getReferenceById(dto.proteinId());
+            Order order = new Order(broth, protein);
 
         String description = broth.getName() + " and " + protein.getName() + " Ramen";
-
+        this.id = repository.save(order).getId();
         return new OrderResponseDTO(
-                "1234",
+                this.getId(),
                 description,
                 broth.getImage()
         );
+
     }
 }

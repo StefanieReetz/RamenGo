@@ -1,21 +1,40 @@
 package br.com.alura.ramengo.model;
 
 import jakarta.persistence.*;
-
 @Entity
-@Table(name="orders")
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(optional = false) // Garantir que não permite valores nulos
+    @JoinColumn(name = "broth_id", nullable = false)
     private Broth broth;
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(optional = false) // Garantir que não permite valores nulos
+    @JoinColumn(name = "protein_id", nullable = false)
     private Protein protein;
 
+    // Construtor
     public Order(Broth broth, Protein protein) {
-
+        this.broth = broth;
+        this.protein = protein;
     }
+//@Entity
+//@Table(name="orders")
+//public class Order {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    private Broth broth;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    private Protein protein;
+//
+//    public Order(Broth broth, Protein protein) {
+//
+//    }
 
 
     public Long getId() {

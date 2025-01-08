@@ -7,12 +7,4 @@ public record OrderDTO(@NotNull
                        @NotNull
                        Long proteinId) {
 
-    public Long getBrothId() {
-        return brothId;
-    }
-
-
-    public Long getProteinId() {
-        return proteinId;
-    }
 }
