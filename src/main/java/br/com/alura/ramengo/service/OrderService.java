@@ -10,7 +10,15 @@ import br.com.alura.ramengo.repository.BrothRepository;
 import br.com.alura.ramengo.repository.OrderRepository;
 import br.com.alura.ramengo.repository.ProteinRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -21,25 +29,76 @@ public class OrderService {
     private ProteinRepository proteinRepository;
     @Autowired
     private OrderRepository repository;
+    @Autowired
+    private RestTemplate restTemplate;
     Long id;
 
-    public Long getId() {
-        return id;
-    }
 
     public OrderResponseDTO createOrder(OrderDTO dto) {
+
         Broth broth = brothRepository.getReferenceById(dto.brothId());
 
         Protein protein = proteinRepository.getReferenceById(dto.proteinId());
-            Order order = new Order(broth, protein);
+
+        Order order = new Order(broth,protein);
+
+        this.id = repository.save(order).getId();
 
         String description = broth.getName() + " and " + protein.getName() + " Ramen";
-        this.id = repository.save(order).getId();
         return new OrderResponseDTO(
-                this.getId(),
+                generateExternalOrderId(),
                 description,
+//              mudar?
                 broth.getImage()
         );
 
     }
+
+    //gerar o ID
+    public Long generateExternalOrderId() {
+        String endpoint = "https://api.tech.redventures.com.br/orders/generate-id";
+        String apiKey = "ZtVdh8XQ2U8pWI2gmZ7f796Vh8GllXoN7mr0djNf";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", apiKey);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            String responseBody = response.getBody();
+
+            //                                captura o número dentro de "orderId"
+            Pattern pattern = Pattern.compile("\"orderId\":\"(\\d+)\"");
+            Matcher matcher = pattern.matcher(responseBody);
+
+            if (matcher.find()) {
+                // Retorna o número como Long
+                return Long.valueOf(matcher.group(1));
+            } else {
+                throw new RuntimeException("Formato inesperado na resposta: " + responseBody);
+            }
+        } else {
+            throw new RuntimeException("Erro ao gerar ID externo: " + response.getStatusCode());
+        }
+    }
+
+//    public Long generateExternalOrderId() {
+//        String endpoint = "https://api.tech.redventures.com.br/orders/generate-id";
+//        String apiKey = "ZtVdh8XQ2U8pWI2gmZ7f796Vh8GllXoN7mr0djNf";
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("x-api-key", apiKey);
+//
+//        HttpEntity<Void> entity = new HttpEntity<>(headers);
+//
+//        ResponseEntity<Long> response = restTemplate.exchange(endpoint, HttpMethod.POST, entity, String.class);
+//
+//        if (response.getStatusCode().is2xxSuccessful()) {
+//            return response.getBody();
+//        } else {
+//            throw new RuntimeException("Erro ao gerar ID externo: " + response.getStatusCode());
+//        }
+//    }
 }

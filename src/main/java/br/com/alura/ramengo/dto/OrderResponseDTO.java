@@ -1,6 +1,5 @@
 package br.com.alura.ramengo.dto;
 
-import br.com.alura.ramengo.model.Protein;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,6 +11,7 @@ public record OrderResponseDTO (
     String image
 ) {
     public OrderResponseDTO(Long id, String description, String image) {
+        // esse id devolve certo
         this.id = id;
         this.description = description;
         this.image = image;
