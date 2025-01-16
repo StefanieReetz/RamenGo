@@ -41,20 +41,21 @@ public class OrderService {
         Protein protein = proteinRepository.getReferenceById(dto.proteinId());
 
         Order order = new Order(broth,protein);
-
+        Long externalId = generateExternalOrderId();
+        order.setExternalId(externalId);
         this.id = repository.save(order).getId();
 
         String description = broth.getName() + " and " + protein.getName() + " Ramen";
         return new OrderResponseDTO(
-                generateExternalOrderId(),
+                order.getExternalId(),
                 description,
 //              mudar?
-                broth.getImage()
+                "https://tech.redventures.com.br/icons/ramen/ramenChasu.png"
         );
 
     }
 
-    //gerar o ID
+    //gera o ID externo
     public Long generateExternalOrderId() {
         String endpoint = "https://api.tech.redventures.com.br/orders/generate-id";
         String apiKey = "ZtVdh8XQ2U8pWI2gmZ7f796Vh8GllXoN7mr0djNf";
@@ -69,7 +70,7 @@ public class OrderService {
         if (response.getStatusCode().is2xxSuccessful()) {
             String responseBody = response.getBody();
 
-            //                                captura o número dentro de "orderId"
+            //
             Pattern pattern = Pattern.compile("\"orderId\":\"(\\d+)\"");
             Matcher matcher = pattern.matcher(responseBody);
 

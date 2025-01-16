@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "orders")
 public class Order {
+
+    private Long externalId;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,6 +49,14 @@ public class Order {
 //
 //    }
 
+
+    public Long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(Long externalId) {
+        this.externalId = externalId;
+    }
 
     public Long getId() {
         return id;
