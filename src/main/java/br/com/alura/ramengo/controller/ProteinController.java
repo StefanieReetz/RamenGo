@@ -1,6 +1,7 @@
 package br.com.alura.ramengo.controller;
 
 import br.com.alura.ramengo.dto.ProteinDTO;
+import br.com.alura.ramengo.exception.ResourceNotFoundException;
 import br.com.alura.ramengo.service.ProteinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class ProteinController {
     @GetMapping
     public ResponseEntity<List<ProteinDTO>> listarProteinas(){
         List<ProteinDTO> proteinas = proteinService.buscarProteinas();
+        if (proteinas.isEmpty()) {
+            throw new ResourceNotFoundException("Proteinas não encontradas no banco de dados.");
+        }
         return ResponseEntity.ok(proteinas);
     }
 
